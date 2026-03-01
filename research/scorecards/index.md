@@ -7,7 +7,7 @@ description: Standardized asset scorecards.
 
 Use the template below for every new candidate before allocation:
 
-- [Crypto Asset Scorecard Template](/research/scorecards/template)
+- [Crypto Asset Scorecard Template](./template)
 
 ## Current Priority Queue
 

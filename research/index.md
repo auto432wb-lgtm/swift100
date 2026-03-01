@@ -9,9 +9,9 @@ Welcome to the research engine behind Swift 100.
 
 ## Start Here
 
-- [Methodology](/research/methodology)
-- [Latest Alpha Brief (2026-03-01)](/research/alpha-briefs/2026-03-01)
-- [Scorecards](/research/scorecards)
+- [Methodology](./methodology)
+- [Latest Alpha Brief (2026-03-01)](./alpha-briefs/2026-03-01)
+- [Scorecards](./scorecards/)
 
 ## What You’ll Find
 
