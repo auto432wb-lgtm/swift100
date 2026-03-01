@@ -529,5 +529,9 @@ BOME: "book-of-meme",
 POPCAT: "popcat",
 BRETT: "based-brett"
 };
+const url =
+"https://api.coingecko.com/api/v3/simple/price?ids=" +
+encodeURIComponent(chunk.join(",")) +
+"&vs_currencies=usd&include_24hr_change=true";
 </body>
 </html>
