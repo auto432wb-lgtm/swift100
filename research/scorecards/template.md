@@ -3,6 +3,13 @@ title: Scorecard Template
 description: Standard template for evaluating crypto assets.
 ---
 
+<nav>
+  <a href="../">Research Hub</a> ·
+  <a href="../methodology">Methodology</a> ·
+  <a href="../alpha-briefs/2026-03-01">Latest Brief</a> ·
+  <a href="./">Scorecards</a>
+</nav>
+
 # Crypto Asset Scorecard Template
 
 ## A) Quick Facts
@@ -52,3 +59,7 @@ description: Standard template for evaluating crypto assets.
 - [ ] Active allocation candidate
 - [ ] Watchlist only
 - [ ] Pass
+
+---
+
+**Back:** [Scorecards](./)

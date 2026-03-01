@@ -3,9 +3,16 @@ title: Scorecards
 description: Standardized asset scorecards.
 ---
 
+<nav>
+  <a href="../">Research Hub</a> ·
+  <a href="../methodology">Methodology</a> ·
+  <a href="../alpha-briefs/2026-03-01">Latest Brief</a> ·
+  <a href="./">Scorecards</a>
+</nav>
+
 # Asset Scorecards
 
-Use the template below for every new candidate before allocation:
+Use the template below for every candidate before allocation:
 
 - [Crypto Asset Scorecard Template](./template)
 
@@ -14,6 +21,10 @@ Use the template below for every new candidate before allocation:
 - ONDO (RWA)
 - TAO (AI)
 - USDY / tokenized treasury sleeve (Stable Yield)
+
+---
+
+**Back:** [Research Hub](../)
 
 ---
 

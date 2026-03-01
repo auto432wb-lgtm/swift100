@@ -3,6 +3,13 @@ title: Methodology
 description: Crypto research framework used by Swift 100.
 ---
 
+<nav>
+  <a href="./">Research Hub</a> ·
+  <a href="./methodology">Methodology</a> ·
+  <a href="./alpha-briefs/2026-03-01">Latest Brief</a> ·
+  <a href="./scorecards/">Scorecards</a>
+</nav>
+
 # Swift 100 Crypto Methodology
 
 ## Universe
@@ -59,6 +66,11 @@ Each asset is scored 0–5 in 8 categories:
 - Cap illiquid exposure
 - Require pre-trade invalidation before first fill
 - Reassess weekly with relative strength + thesis integrity
+
+---
+
+**Next:** [Open Scorecards](./scorecards/)  
+**Back:** [Research Hub](./)
 
 ---
 
