@@ -179,6 +179,152 @@ tr.is-selected{outline:2px solid #9bb2ff;outline-offset:-2px;background:#f4f7ff}
   rows[0]?.click();
   apply();
 })();
-</script>
+</script> 
+<script>
+(async function () {
+// ===== 1) Ticker -> CoinGecko ID map =====
+const TICKER_TO_ID = {
+BTC:"bitcoin", ETH:"ethereum", SOL:"solana", LINK:"chainlink", SUI:"sui", AVAX:"avalanche-2", NEAR:"near",
+TON:"the-open-network", BNB:"binancecoin", XRP:"ripple", TAO:"bittensor", RENDER:"render-token",
+ONDO:"ondo-finance", AAVE:"aave", UNI:"uniswap", INJ:"injective-protocol", HYPE:"hyperliquid",
+JUP:"jupiter-exchange-solana", PENDLE:"pendle", ENA:"ethena", ARB:"arbitrum", OP:"optimism",
+POL:"polygon-ecosystem-token", STX:"stacks", TIA:"celestia", SEI:"sei-network", APT:"aptos",
+ATOM:"cosmos", ICP:"internet-computer", HBAR:"hedera-hashgraph", TRX:"tron", OM:"mantra-dao",
+MKR:"maker", LDO:"lido-dao", RUNE:"thorchain", PYTH:"pyth-network", EIGEN:"eigenlayer", STRK:"starknet",
+ZK:"zksync", DYDX:"dydx-chain", GMX:"gmx", CRV:"curve-dao-token", SNX:"havven", COMP:"compound-governance-token",
+SUSHI:"sushi", FXS:"frax-share", GRT:"the-graph", AKT:"akash-network", FIL:"filecoin", AR:"arweave",
+  THETA:"theta-token", AIOZ:"aioz-network", HNT:"helium", IOTX:"iotex", GRASS:"grass", WLD:"worldcoin-wld",
+FET:"fetch-ai", OCEAN:"ocean-protocol", PRIME:"echelon-prime", IMX:"immutable-x", RON:"ronin", GALA:"gala",
+BEAM:"beam-2", ILV:"illuvium", SUPER:"superverse", SAND:"the-sandbox", MANA:"decentraland", AXS:"axie-infinity",
+PORTAL:"portal", CFG:"centrifuge", POLYX:"polymesh", TRAC:"origintrail", MPL:"maple", CPOOL:"clearpool",
+GFI:"goldfinch", XLM:"stellar", ALGO:"algorand", VET:"vechain", KAS:"kaspa", XMR:"monero", ZEC:"zcash",
+MINA:"mina-protocol", ROSE:"oasis-network", KAVA:"kava", SSV:"ssv-network", JTO:"jito-governance-token",
+ETHFI:"ether-fi", ALT:"altlayer", MANTA:"manta-network", METIS:"metis-token", BLUR:"blur", DOGE:"dogecoin",
+SHIB:"shiba-inu", PEPE:"pepe", BONK:"bonk", WIF:"dogwifcoin", FLOKI:"floki", BOME:"book-of-meme",
+POPCAT:"popcat", BRETT:"based-brett"
+};
+
+// ===== 2) Locate table =====
+const table = document.getElementById("swiftTable");
+if (!table) return;
+const headerRow = table.querySelector("thead tr");
+  const rows = [...table.querySelectorAll("tbody tr")];
+if (!headerRow || rows.length === 0) return;
+
+// ===== 3) Ensure PRICE + 24H columns exist =====
+let priceIdx = -1;
+let chgIdx = -1;
+
+const ths = [...headerRow.querySelectorAll("th")];
+ths.forEach((th, i) => {
+const t = (th.textContent || "").trim().toLowerCase();
+if (t === "price") priceIdx = i;
+if (t === "24h" || t === "24h %") chgIdx = i;
+});
+
+function insertHeaderAfterRisk() {
+  // default insert near end if risk not found
+let riskIdx = ths.findIndex(th => (th.textContent || "").trim().toLowerCase() === "risk");
+if (riskIdx < 0) riskIdx = headerRow.children.length - 1;
+
+const thPrice = document.createElement("th");
+thPrice.textContent = "Price";
+const thChg = document.createElement("th");
+thChg.textContent = "24H";
+
+const refNode = headerRow.children[riskIdx + 1] || null;
+headerRow.insertBefore(thPrice, refNode);
+headerRow.insertBefore(thChg, headerRow.children[riskIdx + 2] || null);
+}
+
+if (priceIdx === -1 || chgIdx === -1) {
+  insertHeaderAfterRisk();
+// add empty cells for each row at same position (after risk col index 5)
+rows.forEach(row => {
+const tdPrice = document.createElement("td");
+tdPrice.textContent = "—";
+tdPrice.className = "cg-price";
+const tdChg = document.createElement("td");
+tdChg.textContent = "—";
+tdChg.className = "cg-change";
+
+// Insert after risk cell (index 5)
+const ref = row.children[6] || null;
+row.insertBefore(tdPrice, ref);
+row.insertBefore(tdChg, row.children[7] || null);
+});
+  }
+
+// recompute indices after possible insertion
+const ths2 = [...headerRow.querySelectorAll("th")];
+ths2.forEach((th, i) => {
+const t = (th.textContent || "").trim().toLowerCase();
+if (t === "price") priceIdx = i;
+if (t === "24h" || t === "24h %") chgIdx = i;
+});
+
+// ===== 4) Fetch and paint prices =====
+const tickers = rows.map(r => (r.cells[1]?.innerText || "").trim().toUpperCase()).filter(Boolean);
+const ids = [...new Set(tickers.map(t => TICKER_TO_ID[t]).filter(Boolean))];
+if (!ids.length) return;
+  function fmtPrice(v) {
+if (v >= 1) return `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+return `$${v.toLocaleString(undefined, { maximumSignificantDigits: 6 })}`;
+}
+
+async function fetchPrices() {
+try {
+const chunkSize = 80;
+const chunks = [];
+for (let i = 0; i < ids.length; i += chunkSize) chunks.push(ids.slice(i, i + chunkSize));
+
+const data = {};
+for (const chunk of chunks) {
+const url =
+"https://api.coingecko.com/api/v3/simple/price?ids=" + encodeURIComponent(chunk.join(",")) +
+"&vs_currencies=usd&include_24hr_change=true";
+const res = await fetch(url);
+if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+Object.assign(data, await res.json());
+}
+
+rows.forEach(row => {
+const ticker = (row.cells[1]?.innerText || "").trim().toUpperCase();
+const id = TICKER_TO_ID[ticker];
+const p = id ? data[id] : null;
+
+const priceCell = row.cells[priceIdx];
+const chgCell = row.cells[chgIdx];
+if (!priceCell || !chgCell) return;
+  if (!p || typeof p.usd !== "number") {
+priceCell.textContent = "—";
+chgCell.textContent = "—";
+chgCell.style.color = "";
+return;
+}
+
+priceCell.textContent = fmtPrice(p.usd);
+
+const chg = p.usd_24h_change;
+if (typeof chg === "number") {
+chgCell.textContent = `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`;
+chgCell.style.color = chg >= 0 ? "#138a4b" : "#b4232f";
+chgCell.style.fontWeight = "700";
+  } else {
+chgCell.textContent = "—";
+chgCell.style.color = "";
+}
+});
+
+console.log("CoinGecko updated", new Date().toLocaleTimeString());
+} catch (err) {
+console.error("CoinGecko fetch failed:", err);
+}
+}
+
+await fetchPrices();
+setInterval(fetchPrices, 60000); // refresh each 60s
+})();
+  </script>
 </body>
 </html>
