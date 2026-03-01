@@ -424,6 +424,42 @@ tr.is-selected{outline:2px solid #9bb2ff;outline-offset:-2px;background:#f4f7ff}
 
 })();
 </script>
+<script>
+(async function () {
+// ...mapping + setup above...
+
+async function fetchPrices() {
+try {
+const chunkSize = 80;
+const chunks = [];
+for (let i = 0; i < ids.length; i += chunkSize) {
+chunks.push(ids.slice(i, i + chunkSize));
+}
+
+const priceData = {};
+for (const chunk of chunks) {
+const url =
+"https://api.coingecko.com/api/v3/simple/price?ids=" +
+encodeURIComponent(chunk.join(",")) +
+"&vs_currencies=usd&include_24hr_change=true";
+
+const res = await fetch(url);
+if (!res.ok) throw new Error("CoinGecko error: " + res.status);
+const json = await res.json();
+Object.assign(priceData, json);
+}
+
+// ...update table rows...
+
+} catch (err) {
+console.error(err);
+}
+}
+
+await fetchPrices();
+setInterval(fetchPrices, 60000);
+})();
+</script>
 (async function () {
 // ---- HARD MAPPING (your Swift100 core tickers) ----
 const TICKER_TO_ID = {
@@ -513,7 +549,6 @@ ROSE: "oasis-network",
 KAVA: "kava",
 SSV: "ssv-network",
 JTO: "jito-governance-token",
-```html
 ETHFI: "ether-fi",
 ALT: "altlayer",
 MANTA: "manta-network",
